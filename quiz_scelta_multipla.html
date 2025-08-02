@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz a Scelta Multipla - Grecia Antica</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #f9f9f9; }
+    svg { max-width: 95vw; height: auto; margin: 1em auto; border: 1px solid #ccc; }
+    .marker { fill: red; stroke: black; stroke-width: 1; display: none; }
+    .options button {
+      margin: 0.5em;
+      padding: 0.7em 1.2em;
+      font-size: 1em;
+    }
+    #feedback {
+      font-weight: bold;
+      margin: 1em;
+      min-height: 2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Quiz a Scelta Multipla: Grecia Antica</h1>
+  <div id="question"></div>
+  <svg width="1003" height="825" viewBox="0 0 1003 825" xmlns="http://www.w3.org/2000/svg">
+    <image href="Greece_location_map.svg" width="1003" height="825"/>
+  </svg>
+  <div class="options"></div>
+  <div id="feedback"></div>
+  <script>
+    const questions = [
+      { question: "Dove si svolse la battaglia di Maratona?", correct: "Maratona", x: 523, y: 314 },
+      { question: "Dove si svolse la battaglia di Salamina?", correct: "Salamina", x: 505, y: 328 },
+      { question: "Dove si svolse la battaglia delle Termopili?", correct: "Termopili", x: 437, y: 256 },
+      { question: "Dove si svolse la spedizione di Dario in Tracia?", correct: "Tracia", x: 728, y: 58 },
+      { question: "Dove si svolgevano le Olimpiadi antiche?", correct: "Olimpia", x: 384, y: 400 }
+    ];
+
+    const allPlaces = ["Maratona", "Salamina", "Termopili", "Tracia", "Olimpia", "Atene", "Sparta", "Corinto", "Tebe", "Delphi"];
+
+    const svg = document.querySelector("svg");
+    const optionsDiv = document.querySelector(".options");
+    const questionEl = document.getElementById("question");
+    const feedbackEl = document.getElementById("feedback");
+
+    let current = 0;
+
+    function clearMarkers() {
+      svg.querySelectorAll(".marker").forEach(el => el.remove());
+    }
+
+    function showMarker(x, y) {
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("cx", x);
+      circle.setAttribute("cy", y);
+      circle.setAttribute("r", 10);
+      circle.setAttribute("class", "marker");
+      svg.appendChild(circle);
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function loadQuestion() {
+      if (current >= questions.length) {
+        questionEl.textContent = "Quiz completato! Ottimo lavoro!";
+        optionsDiv.innerHTML = "";
+        feedbackEl.textContent = "";
+        return;
+      }
+      const q = questions[current];
+      questionEl.textContent = q.question;
+      feedbackEl.textContent = "";
+      clearMarkers();
+      showMarker(q.x, q.y);
+
+      const wrongOptions = shuffle(allPlaces.filter(p => p !== q.correct)).slice(0, 3);
+      const options = shuffle([q.correct, ...wrongOptions]);
+
+      optionsDiv.innerHTML = "";
+      options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.onclick = () => {
+          if (option === q.correct) {
+            feedbackEl.textContent = "✔️ Corretto!";
+            current++;
+            setTimeout(loadQuestion, 1000);
+          } else {
+            feedbackEl.textContent = "❌ Sbagliato. La risposta giusta era: " + q.correct;
+          }
+        };
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
