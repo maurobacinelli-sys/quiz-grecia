@@ -22,11 +22,14 @@
 <body>
   <h1>Quiz a Scelta Multipla: Grecia Antica</h1>
   <div id="question"></div>
-<svg width="1003" height="825" viewBox="0 0 1003 825" xmlns="http://www.w3.org/2000/svg">
-  <image href="Greece_location_map.svg" width="1003" height="825"/>
-</svg>
-<div class="options"></div>
+
+  <svg width="1003" height="825" viewBox="0 0 1003 825" xmlns="http://www.w3.org/2000/svg">
+    <image href="Greece_location_map.svg" width="1003" height="825"/>
+  </svg>
+
+  <div class="options"></div>
   <div id="feedback"></div>
+
   <script>
     const questions = [
       { question: "Dove si svolse la battaglia di Maratona?", correct: "Maratona", x: 523, y: 314 },
@@ -50,4 +53,56 @@
     }
 
     function showMarker(x, y) {
-      const circle = document.createElementNS("http://www.w3.org
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("cx", x);
+      circle.setAttribute("cy", y);
+      circle.setAttribute("r", 10);
+      circle.setAttribute("class", "marker");
+      svg.appendChild(circle);
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function loadQuestion() {
+      if (current >= questions.length) {
+        questionEl.textContent = "Quiz completato! Ottimo lavoro!";
+        optionsDiv.innerHTML = "";
+        feedbackEl.textContent = "";
+        return;
+      }
+      const q = questions[current];
+      questionEl.textContent = q.question;
+      feedbackEl.textContent = "";
+      clearMarkers();
+      showMarker(q.x, q.y);
+
+      const wrongOptions = shuffle(allPlaces.filter(p => p !== q.correct)).slice(0, 3);
+      const options = shuffle([q.correct, ...wrongOptions]);
+
+      optionsDiv.innerHTML = "";
+      options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.onclick = () => {
+          if (option === q.correct) {
+            feedbackEl.textContent = "✔️ Corretto!";
+            current++;
+            setTimeout(loadQuestion, 1000);
+          } else {
+            feedbackEl.textContent = "❌ Sbagliato. La risposta giusta era: " + q.correct;
+          }
+        };
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
